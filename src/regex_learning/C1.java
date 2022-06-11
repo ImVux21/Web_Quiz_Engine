@@ -15,6 +15,7 @@ public class C1 {
         String digitAndConsonant = "[\\d\\w&&[^aeiouAEIOU]]+";
         String specialCharAndVowels = "[aeiouAEIOU#!?]+";
 
+        //comse
 
 
         Pattern theKeyIsPattern = Pattern.compile(theKeyIs, Pattern.CASE_INSENSITIVE);
