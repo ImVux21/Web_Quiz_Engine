@@ -44,6 +44,12 @@ public class Recipe {
     @ElementCollection
     private List<String> directions;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @NotNull
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private User user;
+
     public void copyOf(Recipe recipe) {
         this.name = recipe.name;
         this.description = recipe.description;

@@ -2,7 +2,11 @@ package recipes.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import recipes.entity.Recipe;
 import recipes.repository.RecipeRepository;
@@ -43,10 +47,17 @@ public class RecipeService {
 
     public ResponseEntity<Recipe> modifyRecipe(long id, Recipe newRecipe) {
         try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserDetails details = (UserDetails) auth.getPrincipal();
             Recipe oldRecipe = recipeRepository.findById(id).get();
-            oldRecipe.copyOf(newRecipe);
-            recipeRepository.save(oldRecipe);
-            return ResponseEntity.noContent().build();
+
+            if (oldRecipe.getUser().getEmail().equals(details.getUsername())) {
+                oldRecipe.copyOf(newRecipe);
+                recipeRepository.save(oldRecipe);
+                return ResponseEntity.noContent().build();
+            }
+
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
@@ -56,9 +67,17 @@ public class RecipeService {
 
     public ResponseEntity<Recipe> deleteRecipe(long id) {
         try {
-            recipeRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } catch (EmptyResultDataAccessException e) {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserDetails details = (UserDetails) auth.getPrincipal();
+            Recipe recipe = recipeRepository.findById(id).get();
+
+            if (recipe.getUser().getEmail().equals(details.getUsername())) {
+                recipeRepository.deleteById(id);
+                return ResponseEntity.noContent().build();
+            }
+
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (EmptyResultDataAccessException | NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         }
     }

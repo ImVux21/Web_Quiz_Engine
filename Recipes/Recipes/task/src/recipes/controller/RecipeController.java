@@ -3,9 +3,14 @@ package recipes.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import recipes.entity.Recipe;
+import recipes.entity.User;
 import recipes.service.RecipeService;
+import recipes.service.UserService;
 
 import java.util.List;
 import java.util.Map;
@@ -16,13 +21,19 @@ public class RecipeController {
 
     @Autowired
     RecipeService recipeService;
+
+    @Autowired
+    UserService userService;
+
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Recipe> getRecipe(@PathVariable long id) {
         return recipeService.getRecipe(id);
     }
 
     @PostMapping(value = "/new", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> createRecipe(@RequestBody Recipe recipe) {
+    public ResponseEntity<String> createRecipe(@RequestBody Recipe recipe, @AuthenticationPrincipal UserDetails details) {
+        User authenticatedUser = userService.getUserByEmail(details.getUsername());
+        recipe.setUser(authenticatedUser);
         return recipeService.addRecipe(recipe);
     }
 
