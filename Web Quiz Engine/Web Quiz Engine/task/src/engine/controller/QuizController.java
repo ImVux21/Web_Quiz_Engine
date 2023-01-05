@@ -4,7 +4,6 @@ import engine.entity.Answer;
 import engine.entity.Completion;
 import engine.entity.Quiz;
 import engine.entity.User;
-import engine.repository.CompletionRepository;
 import engine.service.CompletionService;
 import engine.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,14 +23,11 @@ import java.util.Map;
 public class QuizController {
     QuizService quizService;
     CompletionService completionService;
-    CompletionRepository completionRepository;
 
     @Autowired
-    public QuizController(QuizService quizService, CompletionService completionService,
-                          CompletionRepository completionRepository) {
+    public QuizController(QuizService quizService, CompletionService completionService) {
         this.quizService = quizService;
         this.completionService = completionService;
-        this.completionRepository = completionRepository;
     }
 
     @GetMapping(value = "/quizzes", produces = MediaType.APPLICATION_JSON_VALUE)
